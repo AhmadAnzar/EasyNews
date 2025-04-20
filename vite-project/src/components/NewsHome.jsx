@@ -30,6 +30,11 @@ function NewsHome() {
     setSelectedCategory(category);
   };
 
+  const handleArticleClick = (url) => {
+    window.open(url, '_blank');
+  };
+  const gridArticles = articles.slice(3);
+
   return (
     <div className="p-4">
       <CategorySelector 
@@ -40,21 +45,56 @@ function NewsHome() {
         <p>Loading...</p>
       ) : (
         <>
-          <HeroCard articles={articles} />
-          <div>
-            <h1>{selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} News</h1>
-            <div>
-              <ul>
-                {articles.map((article, index) => (
-                  <li key={index}>
-                    <h2>{article.title}</h2>
-                    <p>{article.description}</p>
-                    {article.urlToImage && <img src={article.urlToImage} alt="Article" style={{ width: '100px' }} />}
-                    <a href={article.url} target="_blank" rel="noopener noreferrer">Read more</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <HeroCard articles={articles.slice(0, 3)} category={selectedCategory} />
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '20px',
+            marginTop: '40px',
+            padding: '0 20px'
+          }}>
+            {gridArticles.map((article, index) => (
+              <div 
+                key={index} 
+                onClick={() => handleArticleClick(article.url)}
+                style={{
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  backgroundColor: '#1a1a1a',
+                  transition: 'transform 0.2s',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                {article.urlToImage && (
+                  <img 
+                    src={article.urlToImage} 
+                    alt={article.title}
+                    style={{
+                      width: '100%',
+                      height: '200px',
+                      objectFit: 'cover'
+                    }}
+                  />
+                )}
+                <div style={{ padding: '15px' }}>
+                  <h3 style={{
+                    color: 'white',
+                    fontSize: '18px',
+                    marginBottom: '10px'
+                  }}>
+                    {article.title}
+                  </h3>
+                  <p style={{
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: '14px'
+                  }}>
+                    {article.description}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </>
       )}

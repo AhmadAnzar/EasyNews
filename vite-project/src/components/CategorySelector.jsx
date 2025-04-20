@@ -11,19 +11,29 @@ const categories = [
 
 function CategorySelector({ selectedCategory, onCategoryChange }) {
     return (
-        <div className="flex justify-center gap-4 my-5 p-3 flex-wrap">
+        <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center',
+            gap: '30px', 
+            margin: '20px 0',
+            flexWrap: 'wrap',
+            padding: '10px'
+        }}>
             {categories.map((category) => (
                 <button
                     key={category}
                     onClick={() => onCategoryChange(category)}
-                    className={`
-                        px-5 py-2.5 rounded-lg font-medium text-base
-                        transition-all duration-300 min-w-[120px] text-center
-                        ${selectedCategory === category 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-gray-50 text-black border border-gray-200 hover:bg-gray-100'
-                        }
-                    `}
+                    style={{
+                        padding: '10px 20px',
+                        border: '1px solid #ddd',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        minWidth: '120px',
+                        textAlign: 'center',
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
                     {category.charAt(0).toUpperCase() + category.slice(1)}
                 </button>
