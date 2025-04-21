@@ -1,14 +1,15 @@
-
 import React, { useEffect, useState } from 'react';
 import HeroCard from './HeroCard';
 import CategorySelector from './CategorySelector';
+import { useNavigate } from 'react-router-dom';
 
 function NewsHome() {
   const [articles, setArticles] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('technology');
   const [searchQuery, setSearchQuery] = useState('');
-  const [bookmarkedArticles, setBookmarkedArticles] = useState([]); // State for bookmarks
+  const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
   const API_KEY = '82d7dbcb9ee94a26a57db14738088f1e';
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -36,8 +37,13 @@ function NewsHome() {
     window.open(url, '_blank');
   };
 
+  // Handle Bookmark Toggle: Add or Remove Article from Bookmarks
   const handleBookmark = (article) => {
-    if (!bookmarkedArticles.some((a) => a.url === article.url)) {
+    if (bookmarkedArticles.some((a) => a.url === article.url)) {
+      // Remove the article from the bookmark list
+      setBookmarkedArticles(bookmarkedArticles.filter((a) => a.url !== article.url));
+    } else {
+      // Add the article to the bookmark list
       setBookmarkedArticles([...bookmarkedArticles, article]);
     }
   };
@@ -76,7 +82,7 @@ function NewsHome() {
         />
         <button
           style={{
-            backgroundColor: '#fffacd', 
+            backgroundColor: '#fffacd',
             color: '#000',
             padding: '10px 20px',
             border: 'none',
@@ -91,83 +97,106 @@ function NewsHome() {
         </button>
       </div>
 
-      {filteredArticles.length === 0 ? (
-        <p>No articles match your search. Try a different keyword.</p>
-      ) : (
-        <>
-          <HeroCard articles={filteredArticles.slice(0, 3)} category={selectedCategory} />
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '20px',
-              marginTop: '40px',
-              padding: '0 20px',
-            }}
-          >
-            {gridArticles.map((article, index) => (
+      {/* Articles Display */}
+      <HeroCard articles={filteredArticles.slice(0, 3)} category={selectedCategory} />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '20px',
+          marginTop: '40px',
+          padding: '0 20px',
+        }}
+      >
+        {gridArticles.length === 0 ? (
+          <p style={{ color: '#aaa', fontSize: '18px' }}>
+            No articles match your search. Try a different keyword.
+          </p>
+        ) : (
+          gridArticles.map((article, index) => (
+            <div
+              key={index}
+              style={{
+                position: 'relative',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                backgroundColor: '#1a1a1a',
+                transition: 'transform 0.2s',
+                cursor: 'pointer',
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
+              onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+              onClick={() => handleArticleClick(article.url)}
+            >
+              {/* Dynamic Bookmark Icon */}
               <div
-                key={index}
-                style={{
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  backgroundColor: '#1a1a1a',
-                  transition: 'transform 0.2s',
-                  cursor: 'pointer',
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering article click
+                  handleBookmark(article);
                 }}
-                onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-                onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                title={bookmarkedArticles.some((a) => a.url === article.url) ? 'Bookmarked' : 'Bookmark'}
+                style={{
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  borderRadius: '50%',
+                  padding: '6px 8px',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                }}
               >
-                {article.urlToImage && (
-                  <img
-                    src={article.urlToImage}
-                    alt={article.title}
-                    style={{
-                      width: '100%',
-                      height: '200px',
-                      objectFit: 'cover',
-                    }}
-                  />
-                )}
-                <div style={{ padding: '15px' }}>
-                  <h3
-                    style={{
-                      color: 'white',
-                      fontSize: '18px',
-                      marginBottom: '10px',
-                    }}
-                  >
-                    {article.title}
-                  </h3>
-                  <p
-                    style={{
-                      color: 'rgba(255,255,255,0.7)',
-                      fontSize: '14px',
-                    }}
-                  >
-                    {article.description}
-                  </p>
-                  <button
-                    onClick={() => handleBookmark(article)}
-                    style={{
-                      backgroundColor: '#ffcc00',
-                      color: '#000',
-                      padding: '8px 15px',
-                      border: 'none',
-                      borderRadius: '20px',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      marginTop: '10px',
-                    }}
-                  >
-                    Bookmark
-                  </button>
-                </div>
+                {bookmarkedArticles.some((a) => a.url === article.url) ? '🔖' : '📑'}
               </div>
-            ))}
-          </div>
-        </>
+
+              {article.urlToImage && (
+                <img
+                  src={article.urlToImage}
+                  alt={article.title}
+                  style={{
+                    width: '100%',
+                    height: '200px',
+                    objectFit: 'cover',
+                  }}
+                />
+              )}
+              <div style={{ padding: '15px' }}>
+                <h3 style={{ color: 'white', fontSize: '18px', marginBottom: '10px' }}>
+                  {article.title}
+                </h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
+                  {article.description}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Button to navigate to the Bookmarked Articles page */}
+      {bookmarkedArticles.length > 0 && (
+        <button
+          onClick={() => navigate('/bookmarked')}
+          style={{
+            position: 'fixed', // Fixed position for bottom-left placement
+            bottom: '20px',
+            left: '20px',
+            backgroundColor: '#ffcc00',
+            color: 'black',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '30px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+            zIndex: 1000, // Ensure it appears above other elements
+          }}
+        >
+          See Bookmarks Here
+        </button>
       )}
     </div>
   );

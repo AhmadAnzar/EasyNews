@@ -1,15 +1,30 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+
 
 function TechDigest() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(''); // State for search input
-  const navigate = useNavigate(); // React Router's navigation hook
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    document.documentElement.style.backgroundColor = 'black';
+    document.body.style.backgroundColor = 'black';
+    document.body.style.color = 'white';
+  
+    return () => {
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+    };
+  }, []);
+  
+  
 
   async function handleClick() {
     const NEWS_API_KEY = '82d7dbcb9ee94a26a57db14738088f1e';
-    const HUGGINGFACE_API_KEY = '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';
 
     try {
       setLoading(true);
@@ -21,33 +36,8 @@ function TechDigest() {
       if (!data.articles || data.articles.length === 0) {
         throw new Error('No articles found');
       }
-      const summarizedArticles = await Promise.all(
-        data.articles.map(async (article) => {
-          const content = article.description || article.content || article.title;
 
-          const res = await fetch(
-            'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${HUGGINGFACE_API_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ inputs: content }),
-            }
-          );
-
-          const result = await res.json();
-          const summary = result?.[0]?.summary_text || article.title;
-
-          return {
-            ...article,
-            summary,
-          };
-        })
-      );
-
-      setArticles(summarizedArticles);
+      setArticles(data.articles);
     } catch (err) {
       console.error('Error:', err);
       setArticles([]);
@@ -62,7 +52,8 @@ function TechDigest() {
       maxWidth: '900px',
       margin: '0 auto',
       padding: '20px',
-      backgroundColor: '#f4f4f4',
+      backgroundColor: '#1a1a1a', // Dark gray for the container
+      color: '#fff', // White text for contrast
       borderRadius: '10px',
     },
     button: {
@@ -107,7 +98,7 @@ function TechDigest() {
     },
     article: {
       display: 'flex',
-      backgroundColor: 'white',
+      backgroundColor: '#333', // Dark gray for article cards
       padding: '15px',
       marginBottom: '15px',
       borderRadius: '8px',
@@ -127,12 +118,12 @@ function TechDigest() {
       fontSize: '18px',
       fontWeight: 'bold',
       marginBottom: '8px',
-      color: '#007bff',
+      color: '#ffcc00', // Yellow for titles
       textDecoration: 'none',
     },
     summary: {
       fontSize: '14px',
-      color: '#333',
+      color: '#ccc', // Light gray for summaries
     },
     returnButton: {
       backgroundColor: '#ff4d4d',
@@ -148,11 +139,10 @@ function TechDigest() {
     },
   };
 
-  // Filter articles based on the search query
   const filteredArticles = articles.filter(
     (article) =>
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.summary.toLowerCase().includes(searchQuery.toLowerCase())
+      article.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -185,7 +175,7 @@ function TechDigest() {
             <a href={article.url} target="_blank" rel="noopener noreferrer" style={styles.title}>
               {article.title}
             </a>
-            <p style={styles.summary}>{article.summary}</p>
+            <p style={styles.summary}>{article.description}</p>
           </div>
         </div>
       ))}

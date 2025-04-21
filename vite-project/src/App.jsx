@@ -4,13 +4,31 @@ import Navbar from './components/Navbar';
 import NewsHome from './components/NewsHome';
 import OpeningForm from './components/OpeningForm';
 import TechDigest from './components/TechDigest';
-import React from 'react';
+import BookmarkedArticles from './components/BookmarkedArticles';
+import React, { useState } from 'react';
 
 function App() {
   const navigate = useNavigate(); // React Router's navigation hook
   const location = useLocation(); // Get the current route
+  const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
 
   const isTechDigestPage = location.pathname === '/techdigest'; // Check if on TechDigest page
+
+  // Function to handle bookmarking/unbookmarking articles
+  const handleBookmark = (article) => {
+    if (bookmarkedArticles.some((a) => a.url === article.url)) {
+      // Remove the article if it's already bookmarked
+      setBookmarkedArticles(bookmarkedArticles.filter((a) => a.url !== article.url));
+    } else {
+      // Add the article to bookmarks
+      setBookmarkedArticles([...bookmarkedArticles, article]);
+    }
+  };
+
+  // Function to handle article click (open in a new tab)
+  const handleArticleClick = (url) => {
+    window.open(url, '_blank');
+  };
 
   return (
     <div className={isTechDigestPage ? 'inverted-colors' : ''}>
@@ -29,7 +47,16 @@ function App() {
         <Route path="/" element={<OpeningForm />} />
 
         {/* NewsHome is displayed after login/signup */}
-        <Route path="/home" element={<NewsHome />} />
+        <Route
+          path="/home"
+          element={
+            <NewsHome
+              bookmarkedArticles={bookmarkedArticles}
+              handleBookmark={handleBookmark}
+              handleArticleClick={handleArticleClick}
+            />
+          }
+        />
 
         {/* TechDigest is displayed when navigating to /techdigest */}
         <Route
@@ -42,7 +69,7 @@ function App() {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                backgroundColor: '#f4f4f4',
+                backgroundColor: 'black',
                 zIndex: 1000,
                 overflowY: 'auto',
               }}
@@ -51,6 +78,18 @@ function App() {
                 <TechDigest />
               </div>
             </div>
+          }
+        />
+
+        {/* BookmarkedArticles is displayed when navigating to /bookmarked */}
+        <Route
+          path="/bookmarked"
+          element={
+            <BookmarkedArticles
+              bookmarkedArticles={bookmarkedArticles}
+              handleBookmark={handleBookmark}
+              handleArticleClick={handleArticleClick}
+            />
           }
         />
       </Routes>
