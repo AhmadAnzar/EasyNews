@@ -14,7 +14,7 @@ function NewsHome() {
         const fetchArticles = async () => {
             try {
                 const response = await fetch(
-                    `https://newsapi.org/v2/top-headlines?country=us&category=${selectedCategory}&apiKey=${import.meta.env.NEWS_API_KEY}`
+                    `https://newsapi.org/v2/top-headlines?country=us&category=${selectedCategory}&apiKey=${import.meta.env.VITE_NEWS_API_KEY}`
                 );
                 const data = await response.json();
                 if (data.articles) {

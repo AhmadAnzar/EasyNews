@@ -27,7 +27,7 @@ function TechDigest() {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=${import.meta.env.NEWS_API_KEY}`
+        `https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=${import.meta.env.VITE_NEWS_API_KEY}`
       );
       const data = await response.json();
 
