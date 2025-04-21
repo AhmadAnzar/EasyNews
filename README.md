@@ -4,11 +4,16 @@ EasyNews is your one stop source for all your WorldWide news , from technology t
 
 ## Features
 
-Varieties of categories to choose from
+Varieties of categories to choose from 
+
 Re-directing to source when clicked
+
 AI summarized news articles 
+
 Bookmark option for your favourite articles
+
 Easy to Use UI 
+
 
 
 
