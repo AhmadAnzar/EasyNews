@@ -8,14 +8,13 @@ function NewsHome() {
     const [selectedCategory, setSelectedCategory] = useState('technology');
     const [searchQuery, setSearchQuery] = useState('');
     const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
-    const API_KEY = '82d7dbcb9ee94a26a57db14738088f1e';
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchArticles = async () => {
             try {
                 const response = await fetch(
-                    `https://newsapi.org/v2/top-headlines?country=us&category=${selectedCategory}&apiKey=${API_KEY}`
+                    `https://newsapi.org/v2/top-headlines?country=us&category=${selectedCategory}&apiKey=${import.meta.env.NEWS_API_KEY}`
                 );
                 const data = await response.json();
                 if (data.articles) {

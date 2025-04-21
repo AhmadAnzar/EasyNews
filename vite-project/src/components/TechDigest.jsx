@@ -24,12 +24,10 @@ function TechDigest() {
   
 
   async function handleClick() {
-    const NEWS_API_KEY = '82d7dbcb9ee94a26a57db14738088f1e';
-
     try {
       setLoading(true);
       const response = await fetch(
-        `https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=${NEWS_API_KEY}`
+        `https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=${import.meta.env.NEWS_API_KEY}`
       );
       const data = await response.json();
 

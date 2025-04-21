@@ -1,8 +1,8 @@
-
 import React from 'react';
-
+import logo from '../assets/logo_easy.jpg.png';
 function Navbar() {
   return (
+    <><img src={logo} alt="Logo" className="logo" />
     <nav style={{
       padding: '20px 0',
       top: 0,
@@ -26,6 +26,7 @@ function Navbar() {
         </h1>
       </div>
     </nav>
+    </>
   );
 }
 
