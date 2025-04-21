@@ -1,14 +1,21 @@
-import React from "react";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import "./LandingPage.css"; 
 
 export default function OpeningForm() {
+  const navigate = useNavigate();
+
+  const handleLoginSignup = () => {
+    navigate('/home'); 
+  };
+
   return (
     <div className="container">
-      {/* Left Side */}
+      <h1>Welcome to EasyNews</h1>
       <div className="left">
         <div className="button-group">
-          <button className="btn login">Login</button>
-          <button className="btn signup">Sign Up</button>
+          <button className="btn login" onClick={handleLoginSignup}>Login</button>
+          <button className="btn signup" onClick={handleLoginSignup}>Sign Up</button>
         </div>
         <form>
           <input
@@ -27,7 +34,6 @@ export default function OpeningForm() {
         </form>
       </div>
 
-      {/* Right Side */}
       <div className="right">
         <h2 className="title"></h2>
         <div className="image-placeholder">

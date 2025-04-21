@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
 function TechDigest() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); // State for search input
+  const navigate = useNavigate(); // React Router's navigation hook
 
   async function handleClick() {
-    const NEWS_API_KEY = '82d7dbcb9ee94a26a57db14738088f1e'; 
-    
-      const HUGGINGFACE_API_KEY = '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';
-  
+    const NEWS_API_KEY = '82d7dbcb9ee94a26a57db14738088f1e';
+    const HUGGINGFACE_API_KEY = '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';
+
     try {
       setLoading(true);
       const response = await fetch(
@@ -36,7 +38,7 @@ function TechDigest() {
           );
 
           const result = await res.json();
-          const summary = result?.[0]?.summary_text || article.title ;
+          const summary = result?.[0]?.summary_text || article.title;
 
           return {
             ...article,
@@ -64,14 +66,44 @@ function TechDigest() {
       borderRadius: '10px',
     },
     button: {
+      backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      color: 'white',
+      padding: '12px 28px',
+      border: 'none',
+      borderRadius: '30px',
+      fontSize: '17px',
+      fontWeight: '600',
+      letterSpacing: '0.5px',
+      cursor: 'pointer',
+      marginBottom: '20px',
+      boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+      transition: 'all 0.3s ease',
+    },
+    searchBar: {
+      display: 'flex',
+      marginBottom: '20px',
+      alignItems: 'center',
+    },
+    searchInput: {
+      flex: 1,
+      padding: '10px 15px',
+      fontSize: '16px',
+      border: '1px solid #ccc',
+      borderRadius: '30px',
+      outline: 'none',
+      marginRight: '10px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    },
+    searchButton: {
       backgroundColor: '#007bff',
       color: 'white',
       padding: '10px 20px',
       border: 'none',
-      borderRadius: '5px',
+      borderRadius: '30px',
       fontSize: '16px',
       cursor: 'pointer',
-      marginBottom: '20px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+      transition: 'all 0.3s ease',
     },
     article: {
       display: 'flex',
@@ -102,7 +134,26 @@ function TechDigest() {
       fontSize: '14px',
       color: '#333',
     },
+    returnButton: {
+      backgroundColor: '#ff4d4d',
+      color: 'white',
+      padding: '10px 20px',
+      border: 'none',
+      borderRadius: '30px',
+      fontSize: '16px',
+      cursor: 'pointer',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+      transition: 'all 0.3s ease',
+      marginTop: '20px',
+    },
   };
+
+  // Filter articles based on the search query
+  const filteredArticles = articles.filter(
+    (article) =>
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.summary.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div style={styles.container}>
@@ -110,7 +161,20 @@ function TechDigest() {
         {loading ? 'Loading...' : 'Fetch Tech Headlines'}
       </button>
 
-      {articles.map((article, index) => (
+      {/* Search Bar */}
+      <div style={styles.searchBar}>
+        <input
+          type="text"
+          placeholder="Search articles..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={styles.searchInput}
+        />
+        <button style={styles.searchButton}>Search</button>
+      </div>
+
+      {/* Articles */}
+      {filteredArticles.map((article, index) => (
         <div key={index} style={styles.article}>
           <img
             src={article.urlToImage || 'https://via.placeholder.com/150'}
@@ -126,7 +190,14 @@ function TechDigest() {
         </div>
       ))}
 
-      {articles.length === 0 && !loading && <p>No articles to show yet. Click the button above.</p>}
+      {filteredArticles.length === 0 && !loading && (
+        <p>No articles match your search. Try a different keyword.</p>
+      )}
+
+      {/* Return Home Button */}
+      <button onClick={() => navigate('/home')} style={styles.returnButton}>
+        Return Home
+      </button>
     </div>
   );
 }

@@ -40,3 +40,34 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Amazing Tech Digest Button */
+.tech-digest-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(45deg, #6a11cb, #2575fc); /* Gradient background */
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 50px; /* Rounded button */
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  transition: all 0.3s ease; /* Smooth transitions */
+  z-index: 1000;
+}
+
+/* Hover Effect */
+.tech-digest-button:hover {
+  transform: scale(1.1); /* Slightly enlarge the button */
+  background: linear-gradient(45deg, #2575fc, #6a11cb); /* Reverse gradient */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+}
+
+/* Active State */
+.tech-digest-button:active {
+  transform: scale(0.95); /* Slightly shrink on click */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
