@@ -1,13 +1,17 @@
 import React from 'react';
 
-function BookmarkedArticles({ bookmarkedArticles, handleArticleClick, handleBookmark }) {
+function BookmarkedArticles({ bookmarkedArticles, handleArticleClick, handleBookmark, isLoading }) {
+  if (isLoading) {
+    return <div className="loading-spinner">Loading...</div>; // Show a loading message or spinner while loading
+  }
+
   return (
     <div className="p-4">
       <h2 style={{ color: 'white', marginBottom: '20px' }}>Bookmarked Articles</h2>
 
       {bookmarkedArticles.length === 0 ? (
         <p style={{ color: '#aaa', fontSize: '18px' }}>
-          No articles have been bookmarked yet.
+         Sorry ,  No articles have been bookmarked yet.
         </p>
       ) : (
         <div
@@ -34,10 +38,10 @@ function BookmarkedArticles({ bookmarkedArticles, handleArticleClick, handleBook
               onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
               onClick={() => handleArticleClick(article.url)}
             >
-              {/* Dynamic Bookmark Icon */}
+              {/* Bookmark Icon */}
               <div
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering article click
+                  e.stopPropagation(); 
                   handleBookmark(article);
                 }}
                 title="Remove Bookmark"

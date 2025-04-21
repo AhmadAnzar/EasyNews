@@ -11,18 +11,18 @@ function App() {
   const navigate = useNavigate(); // React Router's navigation hook
   const location = useLocation(); // Get the current route
   const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Track if the data is still loading
 
   const isTechDigestPage = location.pathname === '/techdigest'; // Check if on TechDigest page
 
   // Function to handle bookmarking/unbookmarking articles
   const handleBookmark = (article) => {
-    if (bookmarkedArticles.some((a) => a.url === article.url)) {
-      // Remove the article if it's already bookmarked
-      setBookmarkedArticles(bookmarkedArticles.filter((a) => a.url !== article.url));
-    } else {
-      // Add the article to bookmarks
-      setBookmarkedArticles([...bookmarkedArticles, article]);
-    }
+    const updatedBookmarks = bookmarkedArticles.some((a) => a.url === article.url)
+      ? bookmarkedArticles.filter((a) => a.url !== article.url)
+      : [...bookmarkedArticles, article];
+
+    setBookmarkedArticles(updatedBookmarks);
+  
   };
 
   // Function to handle article click (open in a new tab)
@@ -30,20 +30,24 @@ function App() {
     window.open(url, '_blank');
   };
 
+  // Simulate fetching data, then set loading to false
+  React.useEffect(() => {
+   
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  }, []);
+
   return (
     <div className={isTechDigestPage ? 'inverted-colors' : ''}>
       <Navbar />
       {/* Button to toggle between TechDigest and Home */}
-      <button
-        onClick={() => navigate(isTechDigestPage ? '/home' : '/techdigest')}
-        className="tech-digest-button"
-      >
+      <button onClick={() => navigate(isTechDigestPage ? '/home' : '/techdigest')} className="tech-digest-button">
         {isTechDigestPage ? 'Return Home' : 'Open Tech Digest'}
       </button>
 
       {/* Routes for different pages */}
       <Routes>
-        {/* OpeningForm is the default route */}
         <Route path="/" element={<OpeningForm />} />
 
         {/* NewsHome is displayed after login/signup */}
@@ -89,6 +93,7 @@ function App() {
               bookmarkedArticles={bookmarkedArticles}
               handleBookmark={handleBookmark}
               handleArticleClick={handleArticleClick}
+              isLoading={isLoading} 
             />
           }
         />
