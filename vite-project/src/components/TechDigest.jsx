@@ -52,8 +52,8 @@ function TechDigest() {
       maxWidth: '900px',
       margin: '0 auto',
       padding: '20px',
-      backgroundColor: '#1a1a1a', // Dark gray for the container
-      color: '#fff', // White text for contrast
+      backgroundColor: '#1a1a1a',
+      color: '#fff', 
       borderRadius: '10px',
     },
     button: {
@@ -98,7 +98,7 @@ function TechDigest() {
     },
     article: {
       display: 'flex',
-      backgroundColor: '#333', // Dark gray for article cards
+      backgroundColor: '#333', 
       padding: '15px',
       marginBottom: '15px',
       borderRadius: '8px',
@@ -118,12 +118,12 @@ function TechDigest() {
       fontSize: '18px',
       fontWeight: 'bold',
       marginBottom: '8px',
-      color: '#ffcc00', // Yellow for titles
+      color: '#ffcc00', 
       textDecoration: 'none',
     },
     summary: {
       fontSize: '14px',
-      color: '#ccc', // Light gray for summaries
+      color: '#ccc',
     },
     returnButton: {
       backgroundColor: '#ff4d4d',
