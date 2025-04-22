@@ -3,90 +3,99 @@ import HeroCard from './HeroCard';
 import CategorySelector from './CategorySelector';
 import { useNavigate } from 'react-router-dom';
 
-function NewsHome() {
+export default function NewsHome() {
     const [articles, setArticles] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('technology');
+    const [searchInput, setSearchInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
     const navigate = useNavigate();
 
+    // Fetch from our proxy whenever the category or search query changes
     useEffect(() => {
-        const fetchArticles = async () => {
+        async function fetchArticles() {
+            const baseUrl = import.meta.env.VITE_BACKEND_URL;
+            const url =
+                `${baseUrl}/news?country=us&category=${selectedCategory}` +
+                (searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : '');
+            console.log('Fetching articles from:', url);
             try {
-                const response = await fetch(
-                    `https://newsapi.org/v2/top-headlines?country=us&category=${selectedCategory}&apiKey=${import.meta.env.VITE_NEWS_API_KEY}`
-                );
-                const data = await response.json();
-                if (data.articles) {
-                    setArticles(data.articles);
-                }
-            } catch (error) {
-                console.error('Error fetching news:', error);
+                const res = await fetch(url);
+                const data = await res.json();
+                console.log('Received data:', data);
+                setArticles(Array.isArray(data.articles) ? data.articles : []);
+            } catch (err) {
+                console.error('Error fetching news:', err);
+                setArticles([]);
             }
-        };
-
+        }
         fetchArticles();
-    }, [selectedCategory]);
+    }, [selectedCategory, searchQuery]);
 
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
+    };
+
+    const handleSearchClick = () => {
+        setSearchQuery(searchInput.trim());
     };
 
     const handleArticleClick = (url) => {
         window.open(url, '_blank');
     };
 
-    // Handle Bookmark Toggle: Add or Remove Article from Bookmarks
     const handleBookmark = (article) => {
-        if (bookmarkedArticles.some((a) => a.url === article.url)) {
-            setBookmarkedArticles(bookmarkedArticles.filter((a) => a.url !== article.url));
-        } else {
-            setBookmarkedArticles([...bookmarkedArticles, article]);
-        }
+        setBookmarkedArticles((prev) =>
+            prev.some((a) => a.url === article.url)
+                ? prev.filter((a) => a.url !== article.url)
+                : [...prev, article]
+        );
     };
 
+    // Client-side filter for UI responsiveness
     const filteredArticles = articles.filter(
-        (article) =>
-            article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (article.description && article.description.toLowerCase().includes(searchQuery.toLowerCase()))
+        (a) =>
+            a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (a.description && a.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
-
     const gridArticles = filteredArticles.slice(3);
 
     return (
         <div className="p-4">
+            {/* Category selector */}
             <CategorySelector
                 selectedCategory={selectedCategory}
                 onCategoryChange={handleCategoryChange}
             />
 
-            {/* Search Bar */}
+            {/* Search input + button */}
             <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center' }}>
                 <input
                     type="text"
                     placeholder="Search articles..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                     style={{
                         flex: 1,
                         padding: '10px 15px',
                         fontSize: '16px',
                         border: '1px solid #ccc',
                         borderRadius: '30px',
-                        outline: 'none',
                         marginRight: '10px',
+                        outline: 'none',
                     }}
                 />
                 <button
+                    type="button"
+                    onClick={handleSearchClick}
                     style={{
                         backgroundColor: '#fffacd',
                         color: '#000',
                         padding: '10px 20px',
                         border: 'none',
                         borderRadius: '30px',
-                        fontSize: '16px',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
                         transition: 'all 0.3s ease',
                     }}
                 >
@@ -94,7 +103,7 @@ function NewsHome() {
                 </button>
             </div>
 
-            {/* Tech Digest Button */}
+            {/* TechDigest page link */}
             <button
                 className="tech-digest-button"
                 type="button"
@@ -103,12 +112,10 @@ function NewsHome() {
                 Tech Digest
             </button>
 
-            {/* Articles Display */}
-            <HeroCard
-                articles={filteredArticles.slice(0, 3)}
-                category={selectedCategory}
-            />
+            {/* Top-3 carousel */}
+            <HeroCard articles={filteredArticles.slice(0, 3)} category={selectedCategory} />
 
+            {/* Grid of the rest */}
             <div
                 style={{
                     display: 'grid',
@@ -120,29 +127,28 @@ function NewsHome() {
             >
                 {gridArticles.length === 0 ? (
                     <p style={{ color: '#aaa', fontSize: '18px' }}>
-                        No articles match your search. Try a different keyword.
+                        No articles match your search.
                     </p>
                 ) : (
-                    gridArticles.map((article, index) => (
+                    gridArticles.map((article, idx) => (
                         <div
-                            key={index}
+                            key={idx}
+                            onClick={() => handleArticleClick(article.url)}
                             style={{
                                 position: 'relative',
                                 border: '1px solid #ddd',
                                 borderRadius: '8px',
-                                overflow: 'hidden',
                                 backgroundColor: '#1a1a1a',
-                                transition: 'transform 0.2s',
                                 cursor: 'pointer',
+                                transition: 'transform 0.2s',
                             }}
                             onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
                             onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                            onClick={() => handleArticleClick(article.url)}
                         >
-                            {/* Dynamic Bookmark Icon */}
+                            {/* Bookmark icon */}
                             <div
                                 onClick={(e) => {
-                                    e.stopPropagation(); // Prevent triggering the article click
+                                    e.stopPropagation();
                                     handleBookmark(article);
                                 }}
                                 title={
@@ -154,10 +160,9 @@ function NewsHome() {
                                     position: 'absolute',
                                     top: '10px',
                                     right: '10px',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                                    backgroundColor: 'rgba(255,255,255,0.85)',
                                     borderRadius: '50%',
                                     padding: '6px 8px',
-                                    fontSize: '16px',
                                     cursor: 'pointer',
                                     zIndex: 10,
                                 }}
@@ -169,11 +174,7 @@ function NewsHome() {
                                 <img
                                     src={article.urlToImage}
                                     alt={article.title}
-                                    style={{
-                                        width: '100%',
-                                        height: '200px',
-                                        objectFit: 'cover',
-                                    }}
+                                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
                                 />
                             )}
                             <div style={{ padding: '15px' }}>
@@ -189,22 +190,22 @@ function NewsHome() {
                 )}
             </div>
 
-            {/* Button to navigate to the Bookmarked Articles page */}
+            {/* Bookmarks button */}
             {bookmarkedArticles.length > 0 && (
                 <button
+                    type="button"
                     onClick={() => navigate('/bookmarked')}
                     style={{
                         position: 'fixed',
                         bottom: '20px',
                         left: '20px',
                         backgroundColor: '#ffcc00',
-                        color: 'black',
+                        color: '#000',
                         padding: '10px 20px',
                         border: 'none',
                         borderRadius: '30px',
-                        fontSize: '16px',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
                         zIndex: 1000,
                     }}
                 >
@@ -214,5 +215,3 @@ function NewsHome() {
         </div>
     );
 }
-
-export default NewsHome;

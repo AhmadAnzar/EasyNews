@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "type": "module",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "start-api": "node api/server.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.4.1",
