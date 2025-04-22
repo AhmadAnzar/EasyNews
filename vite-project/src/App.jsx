@@ -1,5 +1,9 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from 'react-router-dom';
 import Navbar from './components/Navbar';
 import NewsHome from './components/NewsHome';
 import OpeningForm from './components/OpeningForm';
@@ -8,49 +12,30 @@ import BookmarkedArticles from './components/BookmarkedArticles';
 import React, { useState } from 'react';
 
 function App() {
-  const navigate = useNavigate(); // React Router's navigation hook
-  const location = useLocation(); // Get the current route
   const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Track if the data is still loading
 
-  const isTechDigestPage = location.pathname === '/techdigest'; // Check if on TechDigest page
-
-  // Function to handle bookmarking/unbookmarking articles
   const handleBookmark = (article) => {
     const updatedBookmarks = bookmarkedArticles.some((a) => a.url === article.url)
       ? bookmarkedArticles.filter((a) => a.url !== article.url)
       : [...bookmarkedArticles, article];
-
     setBookmarkedArticles(updatedBookmarks);
-  
   };
 
-  // Function to handle article click (open in a new tab)
   const handleArticleClick = (url) => {
     window.open(url, '_blank');
   };
 
-  // Simulate fetching data, then set loading to false
-  React.useEffect(() => {
-   
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
   return (
-    <div className={isTechDigestPage ? 'inverted-colors' : ''}>
+    <div>
+      {/* Navbar */}
       <Navbar />
-      {/* Button to toggle between TechDigest and Home */}
-      <button onClick={() => navigate(isTechDigestPage ? '/home' : '/techdigest')} className="tech-digest-button">
-        {isTechDigestPage ? 'Return Home' : 'Open Tech Digest'}
-      </button>
 
-      {/* Routes for different pages */}
+      {/* Routes */}
       <Routes>
+        {/* Opening Form Route */}
         <Route path="/" element={<OpeningForm />} />
 
-        {/* NewsHome is displayed after login/signup */}
+        {/* News Home Route */}
         <Route
           path="/home"
           element={
@@ -62,30 +47,10 @@ function App() {
           }
         />
 
-        {/* TechDigest is displayed when navigating to /techdigest */}
-        <Route
-          path="/techdigest"
-          element={
-            <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'black',
-                zIndex: 1000,
-                overflowY: 'auto',
-              }}
-            >
-              <div style={{ padding: '20px' }}>
-                <TechDigest />
-              </div>
-            </div>
-          }
-        />
+        {/* Tech Digest Route */}
+        <Route path="/techdigest" element={<TechDigest />} />
 
-        {/* BookmarkedArticles is displayed when navigating to /bookmarked */}
+        {/* Bookmarked Articles Route */}
         <Route
           path="/bookmarked"
           element={
@@ -93,7 +58,6 @@ function App() {
               bookmarkedArticles={bookmarkedArticles}
               handleBookmark={handleBookmark}
               handleArticleClick={handleArticleClick}
-              isLoading={isLoading} 
             />
           }
         />
@@ -102,6 +66,7 @@ function App() {
   );
 }
 
+// Wrap with Router
 export default function AppWrapper() {
   return (
     <Router>

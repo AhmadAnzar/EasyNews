@@ -1,15 +1,13 @@
 // vite.config.js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-export default defineConfig({
-  plugins: [react()],
-  css: {
-    postcss: {}, // keep this!
-    preprocessorOptions: {
-      css: {
-        charset: false
-      }
-    }
-  }
-})
+export default {
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://newsapi.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
+};

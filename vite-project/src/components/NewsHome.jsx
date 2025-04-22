@@ -94,6 +94,15 @@ function NewsHome() {
                 </button>
             </div>
 
+            {/* Tech Digest Button */}
+            <button
+                className="tech-digest-button"
+                type="button"
+                onClick={() => navigate('/techdigest')}
+            >
+                Tech Digest
+            </button>
+
             {/* Articles Display */}
             <HeroCard
                 articles={filteredArticles.slice(0, 3)}
