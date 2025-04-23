@@ -3,17 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://newsapi.org',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
-  },
   css: {
-    postcss: './postcss.config.js', // Ensure PostCSS is configured
+    postcss: './postcss.config.js',
   },
 });
