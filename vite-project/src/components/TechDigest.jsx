@@ -1,48 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
-
 function TechDigest() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [summarizedArticles, setSummarizedArticles] = useState([]);
   const navigate = useNavigate();
+
+  const baseUrl = 'https://newsdata.io/api/1/news';
+  const apiKey = import.meta.env.VITE_NEWSDATA_API_KEY;
 
   useEffect(() => {
     document.documentElement.style.backgroundColor = 'black';
     document.body.style.backgroundColor = 'black';
     document.body.style.color = 'white';
-  
+
     return () => {
       document.documentElement.style.backgroundColor = '';
       document.body.style.backgroundColor = '';
       document.body.style.color = '';
     };
   }, []);
-  
-  
 
-  async function handleClick() {
+  async function fetchTechArticles() {
     try {
       setLoading(true);
-      const response = await fetch(
-        `https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=${import.meta.env.VITE_NEWS_API_KEY}`
-      );
+      const endpoint = `${baseUrl}?apikey=${apiKey}&category=technology&language=en`;
+      console.log('Fetching NewsData.io API:', endpoint);
+
+      const response = await fetch(endpoint);
       const data = await response.json();
 
-      if (!data.articles || data.articles.length === 0) {
+      if (!data.results || data.results.length === 0) {
         throw new Error('No articles found');
       }
 
-      setArticles(data.articles);
+      // Filter articles with images only
+      const articlesWithImages = data.results.filter(
+        (article) => article.image_url && article.image_url !== 'None'
+      );
+
+      setArticles(articlesWithImages);
     } catch (err) {
-      console.error('Error:', err);
+      console.error('Error fetching TechDigest articles:', err);
       setArticles([]);
     } finally {
       setLoading(false);
     }
   }
+
+  const summarizeTechArticles = () => {
+    // Placeholder logic for summarization
+    setSummarizedArticles(
+      articles.map((article) => ({
+        ...article,
+        description: article.description
+          ? article.description.slice(0, 100) + '...'
+          : 'No description available.',
+      }))
+    );
+  };
 
   const styles = {
     container: {
@@ -51,7 +69,7 @@ function TechDigest() {
       margin: '0 auto',
       padding: '20px',
       backgroundColor: '#1a1a1a',
-      color: '#fff', 
+      color: '#fff',
       borderRadius: '10px',
     },
     button: {
@@ -96,7 +114,7 @@ function TechDigest() {
     },
     article: {
       display: 'flex',
-      backgroundColor: '#333', 
+      backgroundColor: '#333',
       padding: '15px',
       marginBottom: '15px',
       borderRadius: '8px',
@@ -116,7 +134,7 @@ function TechDigest() {
       fontSize: '18px',
       fontWeight: 'bold',
       marginBottom: '8px',
-      color: '#ffcc00', 
+      color: '#ffcc00',
       textDecoration: 'none',
     },
     summary: {
@@ -145,9 +163,15 @@ function TechDigest() {
 
   return (
     <div style={styles.container}>
-      <button onClick={handleClick} style={styles.button}>
+      {/* Fetch Tech Headlines Button */}
+      <button onClick={fetchTechArticles} style={styles.button}>
         {loading ? 'Loading...' : 'Fetch Tech Headlines'}
       </button>
+
+      {/* Summarize Button */}
+      {/* <button onClick={summarizeTechArticles} style={styles.button}>
+        Summarize Tech News
+      </button> */}
 
       {/* Search Bar */}
       <div style={styles.searchBar}>
@@ -162,21 +186,24 @@ function TechDigest() {
       </div>
 
       {/* Articles */}
-      {filteredArticles.map((article, index) => (
-        <div key={index} style={styles.article}>
-          <img
-            src={article.urlToImage || 'https://via.placeholder.com/150'}
-            alt="news"
-            style={styles.image}
-          />
-          <div style={styles.content}>
-            <a href={article.url} target="_blank" rel="noopener noreferrer" style={styles.title}>
-              {article.title}
-            </a>
-            <p style={styles.summary}>{article.description}</p>
+      {(summarizedArticles.length > 0 ? summarizedArticles : filteredArticles).map(
+        (article, index) => (
+          <div key={index} style={styles.article}>
+            <img
+              src={article.image_url}
+              alt="news"
+              className="no-invert" // Ensure this class is applied
+              style={styles.image}
+            />
+            <div style={styles.content}>
+              <a href={article.link} target="_blank" rel="noopener noreferrer" style={styles.title}>
+                {article.title}
+              </a>
+              <p style={styles.summary}>{article.description}</p>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      )}
 
       {filteredArticles.length === 0 && !loading && (
         <p>No articles match your search. Try a different keyword.</p>
@@ -191,4 +218,3 @@ function TechDigest() {
 }
 
 export default TechDigest;
-

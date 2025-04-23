@@ -25,9 +25,11 @@ function CategorySelector({ selectedCategory, onCategoryChange }) {
                     onClick={() => onCategoryChange(category)}
                     style={{
                         padding: '10px 20px',
-                        border: '1px solid #ddd',
-                        borderRadius: '8px',
+                        border: '3px solid yellow',
+                        borderRadius: '10px',
                         cursor: 'pointer',
+                        backgroundColor: 'transparent', 
+                        color: 'white',
                         fontSize: '16px',
                         minWidth: '120px',
                         textAlign: 'center',
@@ -42,4 +44,4 @@ function CategorySelector({ selectedCategory, onCategoryChange }) {
     );
 }
 
-export default CategorySelector; 
+export default CategorySelector;

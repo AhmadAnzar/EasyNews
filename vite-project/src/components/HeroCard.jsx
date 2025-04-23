@@ -15,16 +15,18 @@ function HeroCard({ articles, category }) {
         autoplay: true,
         autoplaySpeed: 3000,
     };
+
+    // Filter articles with valid images and titles
     const validArticles = articles.filter(
-        (article) => article.urlToImage && article.title
+        (article) => article.image_url && article.title
     );
 
     return (
         <div
             style={{
                 width: '100%',
-                maxWidth: '900px', // Set max width for the HeroCard
-                margin: '0 auto', // Center the HeroCard
+                maxWidth: '900px',
+                margin: '0 auto', 
                 marginTop: '30px',
                 border: '2px solid white',
                 position: 'relative',
@@ -36,7 +38,7 @@ function HeroCard({ articles, category }) {
                     fontSize: '28px',
                     marginBottom: '20px',
                     textAlign: 'left',
-                    paddingLeft: '20px', // Adjust left padding as needed
+                    paddingLeft: '20px', 
                     position: 'relative',
                     width: '100%',
                 }}
@@ -47,12 +49,12 @@ function HeroCard({ articles, category }) {
                 {validArticles.map((article, index) => (
                     <div key={index} style={{ position: 'relative' }}>
                         <img
-                            src={article.urlToImage}
+                            src={article.image_url} // Updated to use NewsData.io's `image_url`
                             alt={article.title}
                             style={{
                                 width: '100%',
                                 height: '500px',
-                                objectFit: 'cover', // Keep the image aspect ratio intact
+                                objectFit: 'cover',
                                 border: '1px solid #e5e7eb',
                             }}
                         />

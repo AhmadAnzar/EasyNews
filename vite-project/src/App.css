@@ -41,33 +41,65 @@
   color: #888;
 }
 
-/* Amazing Tech Digest Button */
+
 .tech-digest-button {
   position: fixed;
   top: 20px;
   right: 20px;
-  background: linear-gradient(45deg, #6a11cb, #2575fc); /* Gradient background */
+  background: linear-gradient(45deg, #6a11cb, #2575fc);
   color: white;
   padding: 12px 24px;
   border: none;
-  border-radius: 50px; /* Rounded button */
+  border-radius: 50px;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-  transition: all 0.3s ease; /* Smooth transitions */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+  transition: all 0.3s ease;
   z-index: 1000;
 }
 
-/* Hover Effect */
 .tech-digest-button:hover {
-  transform: scale(1.1); /* Slightly enlarge the button */
-  background: linear-gradient(45deg, #2575fc, #6a11cb); /* Reverse gradient */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+  transform: scale(1.1);
+  background: linear-gradient(45deg, #2575fc, #6a11cb); 
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); 
 }
 
-/* Active State */
 .tech-digest-button:active {
-  transform: scale(0.95); /* Slightly shrink on click */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  transform: scale(0.95); 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
+}
+
+:root {
+  --background-color: #1a1a1a;
+  --text-color: #ffffff;
+  --button-background: #333333;
+  --button-text: #ffffff;
+}
+
+
+[data-theme="light"] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+
+[data-theme="light"] img.no-invert {
+  filter: invert(0) hue-rotate(0deg) !important;
+}
+
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
+}
+
+button {
+  background-color: var(--button-background);
+  color: var(--button-text);
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

@@ -1,75 +1,121 @@
 import React, { useEffect, useState } from 'react';
 import HeroCard from './HeroCard';
+import Scroll from './Scroll'
 import CategorySelector from './CategorySelector';
 import { useNavigate } from 'react-router-dom';
 
 export default function NewsHome() {
-    const [articles, setArticles] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('technology');
     const [searchInput, setSearchInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [articles, setArticles] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('technology');
     const [bookmarkedArticles, setBookmarkedArticles] = useState([]);
+    const [nextPageToken, setNextPageToken] = useState('');
     const navigate = useNavigate();
 
-    // Fetch from our proxy whenever the category or search query changes
+    const baseUrl = 'https://newsdata.io/api/1/news';
+    const apiKey = import.meta.env.VITE_NEWSDATA_API_KEY || 'pub_815901eef37963a75598c07056ce9ee8d8ce4';
+
     useEffect(() => {
-        async function fetchArticles() {
-            const baseUrl = import.meta.env.VITE_BACKEND_URL;
-            const url =
-                `${baseUrl}/news?country=us&category=${selectedCategory}` +
-                (searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : '');
-            console.log('Fetching articles from:', url);
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                console.log('Received data:', data);
-                setArticles(Array.isArray(data.articles) ? data.articles : []);
-            } catch (err) {
-                console.error('Error fetching news:', err);
-                setArticles([]);
-            }
-        }
-        fetchArticles();
+        fetchArticles(true); // fresh fetch on category/search change
     }, [selectedCategory, searchQuery]);
 
-    const handleCategoryChange = (category) => {
-        setSelectedCategory(category);
+    async function fetchArticles(isNew = false) {
+        try {
+            const validCategories = [
+                'business', 'entertainment', 'environment', 'food', 'health',
+                'politics', 'science', 'sports', 'technology', 'top', 'tourism', 'world'
+            ];
+            if (!validCategories.includes(selectedCategory)) {
+                throw new Error(`Invalid category: ${selectedCategory}`);
+            }
+    
+            const queryParams = new URLSearchParams({
+                apikey: apiKey,
+                language: 'en'
+            });
+    
+            if (searchQuery) {
+                queryParams.append('q', searchQuery);
+            } else {
+                queryParams.append('category', selectedCategory);
+            }
+    
+            if (!isNew && nextPageToken) {
+                queryParams.append('page', nextPageToken);
+            }
+    
+            const endpoint = `${baseUrl}?${queryParams.toString()}`;
+            console.log('Fetching from:', endpoint);
+    
+            const res = await fetch(endpoint);
+            const json = await res.json();
+    
+            if (json.results && Array.isArray(json.results)) {
+                // Filter articles with valid images
+                const articlesWithImages = json.results.filter(
+                    (article) => article.image_url && article.image_url !== 'None'
+                );
+                const articlesWithTrimmedDescriptions = articlesWithImages.map((article) => ({
+                    ...article,
+                    description: article.description ? article.description.substring(0, 30) + '...' : ''
+                }));
+    
+                setArticles((prev) => isNew ? articlesWithTrimmedDescriptions : [...prev, ...articlesWithTrimmedDescriptions]);
+                setNextPageToken(json.nextPage || '');
+            } else {
+                console.error('Invalid response structure:', json);
+                if (isNew) setArticles([]);
+            }
+        } catch (err) {
+            console.error('Error fetching articles:', err);
+            if (isNew) setArticles([]);
+        }
+    }
+    
+    const handleCategoryChange = (cat) => {
+        setSelectedCategory(cat);
+        setArticles([]);
+        setNextPageToken('');
+        setSearchQuery('');
     };
 
-    const handleSearchClick = () => {
-        setSearchQuery(searchInput.trim());
+    const handleSearchClick = (e) => {
+        e.preventDefault();
+        console.log('Search button clicked, but it is a dummy button.');
     };
 
-    const handleArticleClick = (url) => {
-        window.open(url, '_blank');
-    };
+    const handleArticleClick = (url) => window.open(url, '_blank');
 
     const handleBookmark = (article) => {
         setBookmarkedArticles((prev) =>
-            prev.some((a) => a.url === article.url)
-                ? prev.filter((a) => a.url !== article.url)
+            prev.some((a) => a.link === article.link)
+                ? prev.filter((a) => a.link !== article.link)
                 : [...prev, article]
         );
     };
 
-    // Client-side filter for UI responsiveness
-    const filteredArticles = articles.filter(
+    const loadMoreArticles = () => {
+        if (nextPageToken) fetchArticles(false);
+    };
+
+    const filtered = articles.filter(
         (a) =>
             a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (a.description && a.description.toLowerCase().includes(searchQuery.toLowerCase()))
+            (a.description || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
-    const gridArticles = filteredArticles.slice(3);
+
+    const heroArticles = filtered.slice(0, 3);
+    const gridArticles = filtered.slice(0, 13); 
 
     return (
         <div className="p-4">
-            {/* Category selector */}
             <CategorySelector
                 selectedCategory={selectedCategory}
                 onCategoryChange={handleCategoryChange}
             />
 
-            {/* Search input + button */}
-            <div style={{ display: 'flex', marginBottom: '20px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', marginBottom: 20 }}>
                 <input
                     type="text"
                     placeholder="Search articles..."
@@ -78,140 +124,138 @@ export default function NewsHome() {
                     style={{
                         flex: 1,
                         padding: '10px 15px',
-                        fontSize: '16px',
+                        borderRadius: 30,
                         border: '1px solid #ccc',
-                        borderRadius: '30px',
-                        marginRight: '10px',
-                        outline: 'none',
+                        marginRight: 10,
                     }}
                 />
                 <button
                     type="button"
-                    onClick={handleSearchClick}
+                    onClick={handleSearchClick} 
                     style={{
-                        backgroundColor: '#fffacd',
-                        color: '#000',
-                        padding: '10px 20px',
+                        backgroundColor: 'black',
+                        color: 'white', 
+                        borderRadius: 30,
                         border: 'none',
-                        borderRadius: '30px',
+                        padding: '10px 20px',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                        transition: 'all 0.3s ease',
                     }}
                 >
                     Search
                 </button>
             </div>
 
-            {/* TechDigest page link */}
-            <button
-                className="tech-digest-button"
-                type="button"
-                onClick={() => navigate('/techdigest')}
-            >
-                Tech Digest
-            </button>
+            <HeroCard articles={heroArticles} category={selectedCategory} />
 
-            {/* Top-3 carousel */}
-            <HeroCard articles={filteredArticles.slice(0, 3)} category={selectedCategory} />
-
-            {/* Grid of the rest */}
             <div
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                    gap: '20px',
-                    marginTop: '40px',
-                    padding: '0 20px',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                    gap: 20,
+                    marginTop: 40,
                 }}
             >
                 {gridArticles.length === 0 ? (
-                    <p style={{ color: '#aaa', fontSize: '18px' }}>
-                        No articles match your search.
-                    </p>
+                    <p style={{ color: '#888' }}>No articles found.</p>
                 ) : (
-                    gridArticles.map((article, idx) => (
+                    gridArticles.map((a, i) => (
                         <div
-                            key={idx}
-                            onClick={() => handleArticleClick(article.url)}
+                            key={i}
+                            onClick={() => handleArticleClick(a.link)}
                             style={{
                                 position: 'relative',
-                                border: '1px solid #ddd',
-                                borderRadius: '8px',
-                                backgroundColor: '#1a1a1a',
+                                border: '1px solid #444',
+                                borderRadius: 8,
                                 cursor: 'pointer',
-                                transition: 'transform 0.2s',
+                                overflow: 'hidden',
                             }}
-                            onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-                            onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                         >
-                            {/* Bookmark icon */}
                             <div
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    handleBookmark(article);
+                                    handleBookmark(a);
                                 }}
                                 title={
-                                    bookmarkedArticles.some((a) => a.url === article.url)
+                                    bookmarkedArticles.some((b) => b.link === a.link)
                                         ? 'Remove Bookmark'
                                         : 'Add Bookmark'
                                 }
                                 style={{
                                     position: 'absolute',
-                                    top: '10px',
-                                    right: '10px',
-                                    backgroundColor: 'rgba(255,255,255,0.85)',
+                                    top: 10,
+                                    right: 10,
+                                    background: 'rgba(255,255,255,0.85)',
                                     borderRadius: '50%',
-                                    padding: '6px 8px',
+                                    padding: '5px 8px',
                                     cursor: 'pointer',
-                                    zIndex: 10,
                                 }}
                             >
-                                {bookmarkedArticles.some((a) => a.url === article.url) ? '❌' : '😍'}
+                                {bookmarkedArticles.some((b) => b.link === a.link) ? '❌' : '😍'}
                             </div>
 
-                            {article.urlToImage && (
+                            {a.image_url && (
                                 <img
-                                    src={article.urlToImage}
-                                    alt={article.title}
-                                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                                    src={a.image_url}
+                                    alt={a.title}
+                                    className="no-invert"
+                                    style={{
+                                        width: '100%',
+                                        height: '160px',
+                                        objectFit: 'cover',
+                                        borderRadius: '8px',
+                                    }}
                                 />
                             )}
-                            <div style={{ padding: '15px' }}>
-                                <h3 style={{ color: 'white', fontSize: '18px', marginBottom: '10px' }}>
-                                    {article.title}
-                                </h3>
-                                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>
-                                    {article.description}
-                                </p>
+                            <div style={{ padding: 12 }}>
+                                <h3 style={{ color: 'white', marginBottom: 8 }}>{a.title}</h3>
+                                <p style={{ color: '#ddd' }}>{a.description}</p>
                             </div>
                         </div>
                     ))
                 )}
             </div>
 
-            {/* Bookmarks button */}
+            {nextPageToken && (
+                <button
+                    type="button"
+                    onClick={loadMoreArticles}
+                    style={{
+                        backgroundColor: '#333300',
+                        color: 'white',
+                        padding: '10px 20px',
+                        borderRadius: 30,
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        marginTop: 20,
+                    }}
+                >
+                    Load More Articles
+                </button>
+            )}
+
             {bookmarkedArticles.length > 0 && (
                 <button
                     type="button"
                     onClick={() => navigate('/bookmarked')}
                     style={{
                         position: 'fixed',
-                        bottom: '20px',
-                        left: '20px',
+                        bottom: 20,
+                        left: 20,
                         backgroundColor: '#ffcc00',
-                        color: '#000',
                         padding: '10px 20px',
+                        borderRadius: 30,
                         border: 'none',
-                        borderRadius: '30px',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                        zIndex: 1000,
                     }}
                 >
                     See Bookmarks Here
                 </button>
             )}
+
+    <Scroll/>
+
         </div>
     );
 }

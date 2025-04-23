@@ -8,7 +8,6 @@ export default function OpeningForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // simple patterns: valid email, password at least 6 chars
   const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
   const passwordRegex = /^.{4,}$/;
   const isFormValid = emailRegex.test(email) && passwordRegex.test(password);
